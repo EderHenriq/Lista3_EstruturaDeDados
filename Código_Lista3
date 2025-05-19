@@ -1,0 +1,208 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#define TAMANHO 5
+
+typedef struct {
+    int dados[TAMANHO];
+    int topo;
+} Pilha;
+
+bool isEmpty(Pilha *p) {
+    return p->topo == -1;
+}
+
+void inicializar(Pilha *p) {
+    p->topo = -1;
+}
+
+void push(Pilha *p, int dado) {
+    if (p->topo == TAMANHO - 1) {
+        printf("Pilha Cheia!\n");
+        return;
+    }
+    p->topo++;
+    p->dados[p->topo] = dado;
+}
+
+int pop(Pilha *p) {
+    if (isEmpty(p)) {
+        printf("Pilha Vazia!\n");
+        return -1; 
+    }
+    int temp = p->dados[p->topo];
+    p->topo--;
+    return temp;
+}
+
+void topo(Pilha *p) {
+    if (isEmpty(p)) {
+        printf("Pilha Vazia!\n");
+        return;
+    }
+    printf("\n\nTopo => %d", p->dados[p->topo]);
+}
+
+void imprime_pilha(Pilha *p) {
+    if (isEmpty(p)) {
+        printf("Pilha Vazia\n");
+        return;
+    }
+    printf("\nPilha: ");
+    for (int i = 0; i <= p->topo; i++) {
+        printf("%d ", p->dados[i]);
+    }
+    printf("Topo => %d\n", p->dados[p->topo]);
+}
+
+void inverterVetor() {
+    int tamanho_vetor = 5;
+    int vetor[tamanho_vetor], vetor_invertido[tamanho_vetor];
+    Pilha p;
+
+    inicializar(&p);
+
+    vetor[0] = 1;
+    vetor[1] = 2;
+    vetor[2] = 3;
+    vetor[3] = 4;
+    vetor[4] = 5;
+
+    for (int i = 0; i < tamanho_vetor; i++) {
+        push(&p, vetor[i]);
+    }
+
+    for (int i = 0; i < tamanho_vetor; i++) {
+        vetor_invertido[i] = pop(&p);
+    }
+
+    printf("Vetor original:");
+    for (int i = 0; i < tamanho_vetor; i++) {
+        printf(" %d ", vetor[i]);
+    }
+    printf("\nVetor invertido:");
+    for (int i = 0; i < tamanho_vetor; i++) {
+        printf(" %d ", vetor_invertido[i]);
+    }
+    printf("\n");
+}
+
+void desfazer(Pilha *p, Pilha *undo, Pilha *redo) {
+    if (!isEmpty(p)) {
+        int elemento = pop(p);
+        push(undo, elemento);
+        inicializar(redo); 
+        printf("Desfazer: %d removido da pilha principal.\n", elemento);
+    } else {
+        printf("Nada para desfazer, pilha principal vazia.\n");
+    }
+}
+
+void refazer(Pilha *p, Pilha *undo, Pilha *redo) {
+    if (!isEmpty(undo)) {
+        int elemento = pop(undo);
+        push(p, elemento);
+        push(redo, elemento);
+        printf("Refazer: %d adicionado de volta à pilha principal.\n", elemento);
+    } else {
+        printf("Nada para refazer.\n");
+    }
+}
+
+void removerPares(Pilha *p) {
+    Pilha temp;
+    inicializar(&temp);
+
+    
+    while (!isEmpty(p)) {
+        int elemento = pop(p);
+        if (elemento % 2 != 0) {
+            push(&temp, elemento);
+        }
+    }
+
+    inicializar(p);
+    Pilha temp_invertida;
+    inicializar(&temp_invertida);
+    while (!isEmpty(&temp)) {
+        push(&temp_invertida, pop(&temp));
+    }
+    while (!isEmpty(&temp_invertida)) {
+        push(p, pop(&temp_invertida));
+    }
+
+    printf("Elementos pares removidos.\n");
+}
+
+
+void ordenarPilha(Pilha *p) {
+    Pilha temp;
+    inicializar(&temp);
+
+    while (!isEmpty(p)) {
+        int temp_elemento = pop(p);
+        while (!isEmpty(&temp) && temp.dados[temp.topo] > temp_elemento) {
+            push(p, pop(&temp));
+        }
+        push(&temp, temp_elemento);
+    }
+
+    
+    while (!isEmpty(&temp)) {
+        push(p, pop(&temp));
+    }
+    printf("Pilha ordenada em ordem crescente.\n");
+}
+
+int main() {
+    printf("Questao num 1: Inverter Vetor \n");
+    inverterVetor();
+     printf("-------------------------------------------------\n");
+
+    printf("\nQuestao num 3: Desfazer/Refazer\n");
+    Pilha pilha_principal, pilha_undo, pilha_redo;
+    inicializar(&pilha_principal);
+    inicializar(&pilha_undo);
+    inicializar(&pilha_redo);
+
+    push(&pilha_principal, 10);
+    push(&pilha_principal, 20);
+    push(&pilha_principal, 30);
+    imprime_pilha(&pilha_principal);
+
+    desfazer(&pilha_principal, &pilha_undo, &pilha_redo);
+    imprime_pilha(&pilha_principal);
+
+   
+    refazer(&pilha_principal, &pilha_undo, &pilha_redo);
+    imprime_pilha(&pilha_principal);
+     printf("-------------------------------------------------\n");
+
+    printf("\nQuestao num 4: Remover Elementos Pares\n");
+    Pilha pilha_pares;
+    inicializar(&pilha_pares);
+    push(&pilha_pares, 5);
+    push(&pilha_pares, 2);
+    push(&pilha_pares, 8);
+    push(&pilha_pares, 1);
+    push(&pilha_pares, 4);
+    imprime_pilha(&pilha_pares);
+    removerPares(&pilha_pares);
+    imprime_pilha(&pilha_pares);
+    
+    printf("-------------------------------------------------\n");
+
+    printf("\nQuestao num 5: Ordenar Pilha\n");
+    Pilha pilha_ordenar;
+    inicializar(&pilha_ordenar);
+    push(&pilha_ordenar, 5);
+    push(&pilha_ordenar, 1);
+    push(&pilha_ordenar, 4);
+    push(&pilha_ordenar, 2);
+    push(&pilha_ordenar, 8);
+    imprime_pilha(&pilha_ordenar);
+    ordenarPilha(&pilha_ordenar);
+    imprime_pilha(&pilha_ordenar);
+ printf("-------------------------------------------------\n");
+    return 0;
+}
